@@ -34,8 +34,12 @@ CyberLab automates the management of Apache Guacamole and Libvirt QEMU Virtual M
 ### Configuration
 Edit the config.json to represent your setup. You should only set your Guacamole Admin credentails for now. MAKE SURE YOU USE A GUACAMOLE USER WITH FULL ACCESS! 
 
-## Running
+## Downloading the TestCourse
+As of now the testcourse is recomended to use instead of starting from scrach. Download and extract the testlab/ folder into the courses directory. Feel free to modify it to your needs. If you copy the lab and create a file (say, testlab2.json) or change the name of the course be sure to change it in the `cyberlab_concept.py` file
 
+TestCourse Download: https://drive.google.com/file/d/1jIKv6ErvM6-PKTilCNFpg7h0KEF6dIJe/view?usp=sharing
+
+## Running
 ### Information
 Right now, There is a lab hardcoded in cyberlab_concept.py. You can change it but if you just want to test this will work. Labs are part of courses. courses contain vm_images directory (virtual hard drives and isos used for your labs) and a labs directory. In the courses/testcourse/labs directory there is a file called testlab.json. This is what is read when building the lab session. You can add/remove networks and VMs as needed and use your own images as long as you place them in the vm_images directory. Detailed documentation on building labs comming soon. 
 
