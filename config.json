@@ -1,0 +1,20 @@
+{
+    "connections": {
+        "Local": {
+            "Guacamole": {
+                "Security": "http",
+                "URL": "localhost:8080/guacamole",
+                "AuthRequired": true,
+                "AdminUsername": "guacadminuser",
+                "AdminPassword": "guacadminpassword"
+            },
+            "Libvirt": {
+                "Security": "none",
+                "URL": "qemu:///system",
+                "AuthRequired": false,
+                "AdminUsername": "username",
+                "AdminPassword": "libvirt_password"
+            }
+        }
+    }
+}

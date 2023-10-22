@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* Define the overall layout styles */
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh; /* Set the page height to the viewport height */
+        }
+
+        /* Style the sidebar container */
+        .sidebar-container {
+            width: 350px; /* Initial width of the sidebar container */
+            background-color: #f0f0f0;
+            overflow-y: auto; /* Enable vertical scrolling for the sidebar */
+            transition: width 0.3s; /* Add a smooth transition effect for width changes */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Style the sidebar pages */
+        .sidebar-page {
+            padding: 20px;
+        }
+
+        /* Style the button to toggle the sidebar */
+        .toggle-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            cursor: pointer;
+        }
+
+        /* Style the main section */
+        .main {
+            flex: 1;
+            padding: 20px;
+            background-color: #ffffff;
+            order: 2; /* Adjust the order to move the main content to the right */
+        }
+
+        /* Style the navigation buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+        }
+
+        .nav-button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .nav-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Style the tab buttons */
+        .tab-button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .tab-button:hover {
+            background-color: #0056b3;
+        }
+
+        .scaled-iframe {
+            width: 85%;
+            height: 82vh; /* 100% of the viewport height */
+            border: none; /* Remove iframe border, adjust as needed */
+        }
+    </style>
+</head>
+<body>
+    <!-- Main section -->
+    <div class="main">
+        <h1>Welcome to the Lab</h1>
+        <!-- Tab buttons -->
+        <div>
+            {{vm_buttons}}
+            <!-- Add a button for a tab here first -->
+        </div>
+        <br>
+        {{iframe_content}}
+        <!-- Add more tabs here -->
+    </div>
+
+    <!-- Button to toggle the instructions bar -->
+    <div class="toggle-button" onclick="toggleSidebar()">
+        &#9776; Toggle Instructions
+    </div>
+
+    <!-- Sidebar container with pages -->
+    <div class="sidebar-container" id="sidebar">
+        <!-- Page 1 -->
+        <div class="sidebar-page" id="page1">
+            <h2>Instructions Part 1</h2>
+            <p>Instructions Part 1</p>
+        </div>
+
+        <!-- Page 2 -->
+        <div class="sidebar-page" id="page2">
+            <h2>Instructions Part 2</h2>
+            <p>Instructions Part 2</p>
+        </div>
+
+        <!-- Page 3 -->
+        <div class="sidebar-page" id="page3">
+            <h2>Instructions Part 3</h2>
+            <p>Instructions Part 3</p>
+        </div>
+
+        <!-- Add more pages as needed -->
+
+        <!-- Navigation buttons -->
+        <div class="nav-buttons">
+            <button class="nav-button" onclick="prevPage()">Previous</button>
+            <button class="nav-button" onclick="nextPage()" id="nextButton">Next</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            var sidebar = document.getElementById('sidebar');
+            if (sidebar.style.width === '350px') {
+                sidebar.style.width = '0';
+            } else {
+                sidebar.style.width = '350px';
+            }
+        }
+
+        var currentPage = 1;
+        function showPage(pageNumber) {
+            // Hide all pages
+            var pages = document.getElementsByClassName('sidebar-page');
+            for (var i = 0; i < pages.length; i++) {
+                pages[i].style.display = 'none';
+            }
+
+            // Show the selected page
+            var page = document.getElementById('page' + pageNumber);
+            if (page) {
+                page.style.display = 'block';
+                currentPage = pageNumber;
+
+                // Update the "Next" button to "Done" on the last page
+                var nextButton = document.getElementById('nextButton');
+                if (pageNumber === pages.length) {
+                    nextButton.innerText = 'Done';
+                    nextButton.onclick = confirmDone;
+                } else {
+                    nextButton.innerText = 'Next';
+                    nextButton.onclick = nextPage;
+                }
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                showPage(currentPage - 1);
+            }
+        }
+
+        function nextPage() {
+            var numPages = document.getElementsByClassName('sidebar-page').length;
+            if (currentPage < numPages) {
+                showPage(currentPage + 1);
+            }
+        }
+
+        function confirmDone() {
+            var confirmMessage = "Are you sure you want to finish?";
+            var confirmed = confirm(confirmMessage);
+
+            if (confirmed) {
+                // Redirect to "/done" if confirmed
+                window.location.href = '/done';
+            }
+        }
+
+        // Show the initial page (Page 1)
+        showPage(1);
+
+        // Function to show tab content
+        function showTab(tabNumber) {
+            // Hide all tab content
+            var tabContents = document.getElementsByClassName('tab-content');
+            for (var i = 0; i < tabContents.length; i++) {
+                tabContents[i].style.display = 'none';
+            }
+
+            // Show the selected tab content
+            var tabContent = document.getElementById('tab' + tabNumber);
+            if (tabContent) {
+                tabContent.style.display = 'block';
+
+                if (tabNumber){
+                var element = "guacamole-iframe"
+                var elementNum = tabNumber.toString();
+                var elementID = element.concat(elementNum);
+                console.log(elementID)
+                var iframe = document.getElementById(elementID);
+                iframe.focus();
+                }
+            }
+
+        // Change the selected tab button's background color to blue2 and reset others
+        var tabButtons = document.getElementsByClassName('tab-button');
+        for (var i = 0; i < tabButtons.length; i++) {
+            if (i === tabNumber - 1) {
+                tabButtons[i].style.backgroundColor = '#001f3f';
+            } else {
+                tabButtons[i].style.backgroundColor = '#007bff'; // Default color for unselected tabs
+            }
+          }
+
+        }
+    </script>
+</body>
+</html>
