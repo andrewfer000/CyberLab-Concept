@@ -1,0 +1,81 @@
+{
+    "TestLab": {
+        "Rules": {
+            "TimeLimit": "60M",
+            "AllowPause": "false",
+            "AllowExtend": "false"
+        },
+        "Machines": {
+            "Machine1": {
+                "Disks": [{"cdrom": "test.iso"}, {"disk": "myvm.qcow2"}],
+                "OS": "Linux",
+                "CPUCores": "2",
+                "Memory": "2048",
+                "Network": [["52:54:00:00:00:02", "virtio", "LabNetwork1"]]
+            },
+            "Machine2": {
+                "Disks": [{"disk": "myvm.qcow2"}],
+                "OS": "OS Name",
+                "CPUCores": "2",
+                "Memory": "2048",
+                "Network": [["52:54:00:00:00:03", "virtio", "LabNetwork1"]]
+            },
+            "Machine3": {
+                "Disks": [{"cdrom": "test.iso"}, {"disk": "myvm.qcow2"}],
+                "OS": "OS Name",
+                "CPUCores": "2",
+                "Memory": "2048",
+                "Network": [["52:54:00:00:00:04", "virtio", "LabNetwork1"], ["52:54:00:00:00:05", "virtio", "LabNetwork2"]]
+            }
+        },
+        "Networks": {
+            "LabNetwork1": {
+                "Mode": "DHCP",
+                "Type": "private",
+                "HostAddr": "x.x.x.1",
+                "Subnet": "255.255.255.240",
+                "DHCPv4StartRange": "x.x.x.2",
+                "DHCPv4EndRange": "x.x.x.10",
+                "ipassignments": [["Machine1", "x.x.x.2"], ["Machine2", "x.x.x.3"], ["Machine3", "x.x.x.4"]]
+            },
+            "LabNetwork2": {
+                "Mode": "DHCP",
+                "Type": "private",
+                "HostAddr": "x.x.x.1",
+                "Subnet": "255.255.255.240",
+                "DHCPv4StartRange": "x.x.x.2",
+                "DHCPv4EndRange": "x.x.x.10",
+                "ipassignments": [["Machine3", "x.x.x.2"]]
+            }
+        },
+        "Instructions": {
+            "Page1": {
+                "Header": "Hello World",
+                "Data": [["HTMLText", "Hello World"],
+                {"Question/MultipleChoice": ["What is 1+1:B", "A: 1", "B: 2", "C: 3", "D: 4"]},
+                ["HTMLText", "Hello World"]]
+                },
+            "Page2": {
+                "Header": "Hello World2",
+                "Data": [["HTMLText", "Hello World"],
+                {"Question/MultipleChoice": ["What is 1+1:B", "A: 1", "B: 2", "C: 3", "D: 4"]},
+                ["HTMLText", "Hello World"]]
+            },
+            "Page3": {
+                "Header": "Hello World3",
+                "Data": [["HTMLText", "Hello World"],
+                {"Question/MultipleChoice": ["What is 1+1:B", "A: 1", "B: 2", "C: 3", "D: 4"]},
+                ["HTMLText", "Hello World"]]
+            }
+        },
+        "Checkers": {
+            "Checker1": {
+                "Type": "LinuxFileChecker",
+                "Task": "DoesExist",
+                "Machine": "Machine1",
+                "Path": "/path/to/file",
+                "RunAfterLab": "true"
+            }
+        }
+    }
+}
