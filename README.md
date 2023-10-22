@@ -16,7 +16,8 @@ CyberLab automates the management of Apache Guacamole and Libvirt QEMU Virtual M
 ### What is incomplete
 1. Lab JSON checking and validaton (Be careful when writing your own)
 2. Generate Lab Interface with instrustions and questions
-3. Remote user testing (Localhost use only right now)
+3. Lab Checkers
+4. Remote user testing (Localhost use only right now)
 
 ## Install
 
