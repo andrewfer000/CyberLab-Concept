@@ -6,6 +6,7 @@ from functions.guacamole_auto_configure import *
 from functions.misc_functions import *
 from functions.xml_generator import *
 from functions.get_client_urls import get_client_url
+from functions.generate_lab import GenerateLab
 
 
 with open('config.json', 'r') as file:
@@ -13,6 +14,7 @@ with open('config.json', 'r') as file:
 
 GUAC_SECURITY = config['connections']['Local']['Guacamole']['Security']
 GUACAMOLE_URL = config['connections']['Local']['Guacamole']['URL']
+GUAC_FULL_URL = f"{GUAC_SECURITY}://{GUACAMOLE_URL}"
 GUACAMOLE_API_URL = f"{GUAC_SECURITY}://{GUACAMOLE_URL}/api"
 GUACAMOLE_ADMIN_UNAME = config['connections']['Local']['Guacamole']['AdminUsername']
 GUACAMOLE_ADMIN_PASS = config['connections']['Local']['Guacamole']['AdminPassword']
@@ -305,37 +307,7 @@ def ConfigureGuac(vm_vnc_ports, session_id):
 
     return guac_data
 
-def GenerateLab(guac_data, session_id):
-    env = Environment(loader=FileSystemLoader("./templates"))
-    template = env.get_template("labpagetest.html.j2")
 
-    i = 1
-    vm_buttons = ""
-    iframe_content = ""
-    for Session_Client_URL in guac_data.get("Session_Client_URLs"):
-        ui_vmbutton = f'''<button class="tab-button" onclick="showTab({i})">VM {i}</button>
-        '''
-        ui_iframe = f'''
-            <div class="tab-content" id="tab{i}">
-                <iframe id="guacamole-iframe{i}" class="scaled-iframe" src="{GUAC_SECURITY}://{GUACAMOLE_URL}/{Session_Client_URL}?token={guac_data.get("Session_Auth_Token")}" width="1280" #height="720"></iframe>
-        </div>
-        '''
-        i = i + 1
-        vm_buttons =  vm_buttons + ui_vmbutton
-        iframe_content = iframe_content + ui_iframe
-
-    data = {
-        "vm_buttons": vm_buttons,
-        "iframe_content": iframe_content
-        }
-
-    output = template.render(data)
-    output_file_path = f"./sessions/{session_id}/lab_page.html"
-
-    with open(output_file_path, "w") as output_file:
-        output_file.write(output)
-
-    return None
 
 def PauseSession(session_id):
     guac_admin_auth_token = generate_authToken(GUACAMOLE_ADMIN_UNAME, GUACAMOLE_ADMIN_PASS, GUACAMOLE_API_URL)
@@ -403,7 +375,7 @@ def ResumeSession(session_id):
         "Session_Auth_Token": session_user_auth_token,
         "Session_Client_URLs": Session_Client_URLs
     }
-    GenerateLab(guac_data, session_id)
+    GenerateLab(GUAC_FULL_URL, guac_data, session_id)
 
     print(f"Session {session_id} has been resumed sucessfully!")
 
@@ -455,7 +427,7 @@ def startLab():
     session_id, vm_vnc_ports = CreateSession(machines)
     guac_data = ConfigureGuac(vm_vnc_ports, session_id)
     CreateVM(machines, networks, vm_vnc_ports, session_id)
-    GenerateLab(guac_data, session_id)
+    GenerateLab(GUAC_FULL_URL, guac_data, session_id)
 
     return session_id
 
