@@ -15,11 +15,13 @@ with open('config.json', 'r') as file:
 GUAC_SECURITY = config['connections']['Local']['Guacamole']['Security']
 GUACAMOLE_URL = config['connections']['Local']['Guacamole']['URL']
 GUAC_FULL_URL = f"{GUAC_SECURITY}://{GUACAMOLE_URL}"
-GUACAMOLE_API_URL = f"{GUAC_SECURITY}://{GUACAMOLE_URL}/api"
+GUACAMOLE_API_URL = f"{GUAC_FULL_URL}/api"
 GUACAMOLE_ADMIN_UNAME = config['connections']['Local']['Guacamole']['AdminUsername']
 GUACAMOLE_ADMIN_PASS = config['connections']['Local']['Guacamole']['AdminPassword']
 LIBVIRT_SECURITY = config['connections']['Local']['Libvirt']['Security']
 LIBVIRT_URL = config['connections']['Local']['Libvirt']['URL']
+
+
 
 # For testing only. Will be made dynamic later
 COURSE = "testcourse"
@@ -107,6 +109,7 @@ def WriteSessionData(componet, indata, session_id):
             "Session_Connection_Names": indata.get("Session_Connection_Names"),
             "Session_Client_URLs": indata.get("Session_Client_URLs")
         }
+
     else:
         print(f"ERROR: Componet: {componet} Does not Exist!")
 
@@ -398,17 +401,18 @@ def DestorySession(session_id):
         power_off_vm(machine_name)
         delete_virtual_machine(machine_name)
 
+
     networks = session[session_id]["Networkinfo"]
     network_names = list(networks.keys())
     for network_name in network_names:
         delete_internal_network(network_name)
 
+
     guac_connections = session[session_id]["Guacamole"]["Session_Connection_Names"]
+    guac_user = session[session_id]["Guacamole"]["Session_User"]
     for guac_connection in guac_connections:
         for connection_name, connection_id in guac_connection.items():
             delete_guacamole_connections(guac_admin_auth_token, connection_id, GUACAMOLE_API_URL)
-
-    guac_user = session[session_id]["Guacamole"]["Session_User"]
     delete_guacamole_user(guac_admin_auth_token, guac_user, GUACAMOLE_API_URL)
 
     shutil.rmtree(session_dir)
@@ -423,11 +427,12 @@ def startLab():
 
     machines = lab["TestLab"]["Machines"]
     networks = lab["TestLab"]["Networks"]
+    instructions = lab["TestLab"]["Instructions"]
 
     session_id, vm_vnc_ports = CreateSession(machines)
     guac_data = ConfigureGuac(vm_vnc_ports, session_id)
-    CreateVM(machines, networks, vm_vnc_ports, session_id)
-    GenerateLab(GUAC_FULL_URL, guac_data, session_id)
+    #CreateVM(machines, networks, vm_vnc_ports, session_id)
+    GenerateLab(GUAC_FULL_URL, guac_data, session_id, instructions)
 
     return session_id
 
@@ -447,21 +452,15 @@ if __name__ == "__main__":
         print(f"Session {session_id} is now ready. You can access VMs directly by opening ./sessions/{session_id}/lab_page.html")
         print("")
         print(f"TO DESTORY THIS SESSION, run 'python3 cyberlab_concept.py --destorysession {session_id}' NOTE: This will stop and delete the VMs, Guacamole connections/users and files for this session")
-    else:
-        pass
-    if args.destorysession:
+    elif args.destorysession:
         print(f"Destorying Session {args.destorysession}")
         DestorySession(args.destorysession)
-    else:
-        pass
-    if args.pausesession:
+    elif args.pausesession:
         print(f"Pausing Session {args.pausesession}")
         PauseSession(args.pausesession)
-    else:
-        pass
-    if args.resumesession:
+    elif args.resumesession:
         print(f"Resuming Session {args.resumesession}")
         ResumeSession(args.resumesession)
     else:
-        pass
+        print("Invaild Option")
 
