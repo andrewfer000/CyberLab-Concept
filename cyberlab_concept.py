@@ -8,7 +8,6 @@ from functions.xml_generator import *
 from functions.get_client_urls import get_client_url
 from functions.generate_lab import GenerateLab
 
-
 with open('config.json', 'r') as file:
     config = json.load(file)
 
@@ -57,6 +56,10 @@ def CreateSession(machines):
             "Networkinfo":{
                 },
             "Guacamole":{
+                },
+            "Questions":{
+                },
+            "Checkers":{
                 }
             }
         }
@@ -72,55 +75,9 @@ def CreateSession(machines):
         vm_vnc_ports.append({f"{machine_name}": vnc_port})
     return session_id, vm_vnc_ports
 
-def WriteSessionData(componet, indata, session_id):
-    file_path = os.path.join(f"sessions/{session_id}", "session.json")
-
-    with open(file_path, 'r') as file:
-        data = json.load(file)
-
-    if componet == "machine":
-        data[session_id]['VMinfo'][indata.get("Machine_Name")] = {
-            'isSuspended': False,
-            'isOn': True,
-            'Networks': indata.get("Networks"),
-            'Disks': indata.get("Disks"),
-            'CPUCores': indata.get("CPUCores"),
-            'Memory': indata.get("Memory"),
-            'VNC_Port': indata.get("VNC_Port")
-        }
-
-    elif componet == "network":
-        data[session_id]['Networkinfo'][indata.get("Network_Name")] = {
-            'isSuspended': False,
-            'isOn': True,
-            "Type": indata.get("Type"),
-            "HostAddr": indata.get("HostAddr"),
-            "Subnet": indata.get("Subnet"),
-            "DHCPv4StartRange": indata.get("DHCPv4StartRange"),
-            "DHCPv4EndRange": indata.get("DHCPv4EndRange"),
-            "DHCPleases" : indata.get("DHCPleases")
-        }
-
-    elif componet == "guacamole":
-        data[session_id]['Guacamole'] = {
-            "Session_User": indata.get("Session_User"),
-            "Session_Password": indata.get("Session_Password"),
-            "Session_Auth_Token": indata.get("Session_Auth_Token"),
-            "Session_Connection_Names": indata.get("Session_Connection_Names"),
-            "Session_Client_URLs": indata.get("Session_Client_URLs")
-        }
-
-    else:
-        print(f"ERROR: Componet: {componet} Does not Exist!")
-
-
-
-    # Write the updated data back to data.json
-    with open(file_path, 'w') as file:
-        json.dump(data, file, indent=4)
-
 # This Function creates tcomponethe VM envirtonment for the lab.
 def CreateVM(machines, networks, vm_vnc_ports, session_id):
+    machineips = []
     for network_name, network_info in networks.items():
         dhcp_leases = ""
         random_number = random.randint(1000, 9999)
@@ -143,6 +100,8 @@ def CreateVM(machines, networks, vm_vnc_ports, session_id):
                         dhcp_lease_string = f"""
                         <host mac='{ vm_mac }' name='{ f"{vm_network_name}_{session_id}" }' ip='{ full_ip }'/>"""
                         dhcp_leases = dhcp_leases + dhcp_lease_string
+                        machineip = {machine_name: full_ip}
+                        machineips.append(machineip)
                 else:
                     pass
 
@@ -195,6 +154,8 @@ def CreateVM(machines, networks, vm_vnc_ports, session_id):
 
         disk_conf = ""
         VM_Disks = []
+        diski = 0
+        driveletter = 'a'
         for disk in details.get("Disks", []):
             for disk_type, path in disk.items():
                 if disk_type == "cdrom":
@@ -213,22 +174,22 @@ def CreateVM(machines, networks, vm_vnc_ports, session_id):
                     disk_string = f""" <disk type="file" device="cdrom">
                     <driver name="qemu" type="raw"/>
                     <source file="{abspath}"/>
-                    <target dev="sda" bus="sata"/>
+                    <target dev="sd{driveletter}" bus="sata"/>
                     <readonly/>
-                    <address type="drive" controller="0" bus="0" target="0" unit="0"/>
+                    <address type="drive" controller="0" bus="0" target="0" unit="{diski}"/>
                  </disk>
                 """
-                elif disk_type == "disk":
+                    diski = diski + 1
+                    driveletter = chr(ord(driveletter) + 1)
+
+                elif disk_type == "lindisk":
                     source_file_path = f"{COURSE_DIR}/vm_images/{path}"
                     destination_file_path = f"sessions/{session_id}/disks/{session_id}_{machine_name}_{path}"
                     try:
-                        with open(source_file_path, 'rb') as source_file:
-                            file_content = source_file.read()
-
-                        with open(destination_file_path, 'wb') as destination_file:
-                            destination_file.write(file_content)
+                        shutil.copy2(source_file_path, destination_file_path)
                     except Exception as e:
-                        print(f'An error occurred: {e}')
+                        print(f"Error: {e}. Option 2 Failed the Lab will not work")
+
                     abspath = os.path.abspath(destination_file_path)
 
                     disk_string = f""" <disk type='file' device='disk'>
@@ -238,6 +199,26 @@ def CreateVM(machines, networks, vm_vnc_ports, session_id):
                     <address type='pci' domain='0x0000' bus='0x00' slot='0x04' function='0x0'/>
                  </disk>
                 """
+                elif disk_type == "windisk":
+                    source_file_path = f"{COURSE_DIR}/vm_images/{path}"
+                    destination_file_path = f"sessions/{session_id}/disks/{session_id}_{machine_name}_{path}"
+                    try:
+                        shutil.copy2(source_file_path, destination_file_path)
+                    except Exception as e:
+                        print(f"Error: {e}. Option 2 Failed the Lab will not work")
+
+                    abspath = os.path.abspath(destination_file_path)
+
+                    disk_string = f""" <disk type='file' device='disk'>
+                    <driver name='qemu' type='qcow2'/>
+                    <source file='{abspath}'/>
+                    <target dev="sd{driveletter}" bus="sata"/>
+                    <address type="drive" controller="0" bus="0" target="0" unit="{diski}"/>
+                </disk>
+                """
+                    diski = diski + 1
+                    driveletter = chr(ord(driveletter) + 1)
+
                 disk_conf = disk_conf + disk_string
                 disk_dict = {disk_type:abspath}
                 VM_Disks.append(disk_dict)
@@ -258,11 +239,16 @@ def CreateVM(machines, networks, vm_vnc_ports, session_id):
             network_conf = network_conf + network_string
             i = i+2
 
+        machine_data_ips = []
+        for machineip in machineips:
+            for name, ip in machineip.items():
+                if name == machine_name:
+                    machine_data_ips.append(ip)
+
         machine_name = f"{machine_name}_{session_id}"
         vm_xml = generate_vm_config(machine_name, details.get("Memory"), details.get("CPUCores"), vnc_port, network_conf, disk_conf)
         #print(vm_xml)
         create_persistent_virtual_machine(machine_name, vm_xml)
-
 
         machine_data = {
             "Machine_Name": machine_name,
@@ -270,7 +256,8 @@ def CreateVM(machines, networks, vm_vnc_ports, session_id):
             "Memory": details.get("Memory"),
             "Networks": details.get("Network", []),
             "Disks": VM_Disks,
-            "VNC_Port": vnc_port
+            "VNC_Port": vnc_port,
+            "machine_data_ips": machine_data_ips
             }
 
         WriteSessionData("machine", machine_data, session_id)
@@ -346,6 +333,13 @@ def PauseSession(session_id):
     return None
 
 def ResumeSession(session_id):
+    with open(LAB_TO_RUN, 'r') as file:
+        lab = json.load(file)
+
+    instructions = lab["TestLab"]["Instructions"]
+    file.close()
+
+
     guac_admin_auth_token = generate_authToken(GUACAMOLE_ADMIN_UNAME, GUACAMOLE_ADMIN_PASS, GUACAMOLE_API_URL)
     session_dir = os.path.join(f"sessions", f"{session_id}")
     session_file = os.path.join(f"sessions/{session_id}", "session.json")
@@ -378,7 +372,8 @@ def ResumeSession(session_id):
         "Session_Auth_Token": session_user_auth_token,
         "Session_Client_URLs": Session_Client_URLs
     }
-    GenerateLab(GUAC_FULL_URL, guac_data, session_id)
+
+    GenerateLab(GUAC_FULL_URL, guac_data, session_id, instructions, 1)
 
     print(f"Session {session_id} has been resumed sucessfully!")
 
@@ -407,7 +402,6 @@ def DestorySession(session_id):
     for network_name in network_names:
         delete_internal_network(network_name)
 
-
     guac_connections = session[session_id]["Guacamole"]["Session_Connection_Names"]
     guac_user = session[session_id]["Guacamole"]["Session_User"]
     for guac_connection in guac_connections:
@@ -431,8 +425,10 @@ def startLab():
 
     session_id, vm_vnc_ports = CreateSession(machines)
     guac_data = ConfigureGuac(vm_vnc_ports, session_id)
-    #CreateVM(machines, networks, vm_vnc_ports, session_id)
-    GenerateLab(GUAC_FULL_URL, guac_data, session_id, instructions)
+    CreateVM(machines, networks, vm_vnc_ports, session_id)
+    GenerateLab(GUAC_FULL_URL, guac_data, session_id, instructions, 0)
+
+    file.close()
 
     return session_id
 

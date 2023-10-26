@@ -1,11 +1,14 @@
 import json, random, string, os, argparse, shutil
 from jinja2 import Environment, FileSystemLoader, Template
+from functions.misc_functions import WriteSessionData
 
-def GenerateInstructions(instructions):
+def GenerateInstructions(instructions, session_id, resumevar):
     number_of_pages = len(instructions)
     i = 1
+    tqn = 1
     lab_content = ""
     while i <= number_of_pages:
+        pqn = 1
         page_header = instructions[f'Page{i}']['Header']
         page_data = instructions[f'Page{i}']['Data']
 
@@ -47,16 +50,29 @@ def GenerateInstructions(instructions):
                     """
                     choices = choices + choice
 
+                    if resumevar == 0:
+                        indata = {
+                            "Question_id": f"{session_id}_{tqn}",
+                            "Question_Type": "Question/MultipleChoice",
+                            "Question_Text": question,
+                            "Multiple_Choice_Options": options,
+                            "Answer": answer
+                            }
+
+                        WriteSessionData("InTextQuestion", indata, session_id)
+
                 question_text = f"<p><b>{question}</b></p>"
 
                 element = f"""
-                <form>
+                <form id={session_id}_{tqn}>
                 {question_text}
                 {choices}
                 </form>
                 <br>
                 """
                 page_html = page_html + element
+                tqn = tqn + 1
+                pqn = pqn + 1
 
         page_content = f"""
             <div class="sidebar-page" id="page{i}">
@@ -72,7 +88,7 @@ def GenerateInstructions(instructions):
 
 
 
-def GenerateLab(GUAC_FULL_URL, guac_data, session_id, instructions):
+def GenerateLab(GUAC_FULL_URL, guac_data, session_id, instructions, resumevar):
 
     env = Environment(loader=FileSystemLoader("./templates"))
     template = env.get_template("labpagetest.html.j2")
@@ -80,7 +96,7 @@ def GenerateLab(GUAC_FULL_URL, guac_data, session_id, instructions):
     i = 1
     vm_buttons = ""
     iframe_content = ""
-    lab_content = GenerateInstructions(instructions)
+    lab_content = GenerateInstructions(instructions, session_id, resumevar)
 
     for Session_Client_URL in guac_data.get("Session_Client_URLs"):
         ui_vmbutton = f'''<button class="tab-button" onclick="showTab({i})">VM {i}</button>

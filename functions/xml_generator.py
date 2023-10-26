@@ -31,7 +31,9 @@ def generate_vm_config(vm_name, vm_ram, vm_vcpu, vnc_port, network_conf, disk_co
             </pm>
             <devices>
                 <emulator>/usr/bin/qemu-system-x86_64</emulator>
-                {{disk_conf}} {{network_conf}}<video>
+                {{disk_conf}} {{network_conf}}<input type="tablet" bus="usb">
+                <address type="usb" bus="0" port="1"/></input>
+                    <video>
                     <model type='qxl' vram='16384' heads='1'/>
                     <address type='pci' domain='0x0000' bus='0x00' slot='0x02' function='0x0'/>
                 </video>
