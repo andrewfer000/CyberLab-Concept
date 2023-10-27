@@ -20,19 +20,11 @@ GUACAMOLE_ADMIN_PASS = config['connections']['Local']['Guacamole']['AdminPasswor
 LIBVIRT_SECURITY = config['connections']['Local']['Libvirt']['Security']
 LIBVIRT_URL = config['connections']['Local']['Libvirt']['URL']
 
-
-
-# For testing only. Will be made dynamic later
-COURSE = "testcourse"
-LAB = "testlab"
-COURSE_DIR = f"courses/{COURSE}"
-LAB_TO_RUN = f"{COURSE_DIR}/labs/{LAB}.json"
-
 def DestoryOnError():
     print("Work In Progress")
     return None
 
-def CreateSession(machines):
+def CreateSession(machines, course, lab):
     current_datetime = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     string_length = 10
     session_id = ''.join(random.choices(string.ascii_letters + string.digits, k=string_length))
@@ -48,7 +40,7 @@ def CreateSession(machines):
             "Metadata": {
                 "User": "Unused",
                  "DateTimeCreated": current_datetime,
-                 "CourseLab": f"{COURSE}/{LAB}",
+                 "CourseLab": f"{course}/{lab}",
                  "isSuspended": False
                 },
             "VMinfo":{
@@ -76,7 +68,7 @@ def CreateSession(machines):
     return session_id, vm_vnc_ports
 
 # This Function creates tcomponethe VM envirtonment for the lab.
-def CreateVM(machines, networks, vm_vnc_ports, session_id):
+def CreateVM(machines, networks, vm_vnc_ports, session_id, course_dir):
     machineips = []
     for network_name, network_info in networks.items():
         dhcp_leases = ""
@@ -159,7 +151,7 @@ def CreateVM(machines, networks, vm_vnc_ports, session_id):
         for disk in details.get("Disks", []):
             for disk_type, path in disk.items():
                 if disk_type == "cdrom":
-                    source_file_path = f"{COURSE_DIR}/vm_images/{path}"
+                    source_file_path = f"{course_dir}/vm_images/{path}"
                     destination_file_path = f"sessions/{session_id}/disks/{session_id}_{path}"
                     try:
                         with open(source_file_path, 'rb') as source_file:
@@ -183,7 +175,7 @@ def CreateVM(machines, networks, vm_vnc_ports, session_id):
                     driveletter = chr(ord(driveletter) + 1)
 
                 elif disk_type == "lindisk":
-                    source_file_path = f"{COURSE_DIR}/vm_images/{path}"
+                    source_file_path = f"{course_dir}/vm_images/{path}"
                     destination_file_path = f"sessions/{session_id}/disks/{session_id}_{machine_name}_{path}"
                     try:
                         shutil.copy2(source_file_path, destination_file_path)
@@ -200,7 +192,7 @@ def CreateVM(machines, networks, vm_vnc_ports, session_id):
                  </disk>
                 """
                 elif disk_type == "windisk":
-                    source_file_path = f"{COURSE_DIR}/vm_images/{path}"
+                    source_file_path = f"{course_dir}/vm_images/{path}"
                     destination_file_path = f"sessions/{session_id}/disks/{session_id}_{machine_name}_{path}"
                     try:
                         shutil.copy2(source_file_path, destination_file_path)
@@ -333,22 +325,28 @@ def PauseSession(session_id):
     return None
 
 def ResumeSession(session_id):
-    with open(LAB_TO_RUN, 'r') as file:
-        lab = json.load(file)
-
-    instructions = lab["TestLab"]["Instructions"]
-    file.close()
-
-
     guac_admin_auth_token = generate_authToken(GUACAMOLE_ADMIN_UNAME, GUACAMOLE_ADMIN_PASS, GUACAMOLE_API_URL)
     session_dir = os.path.join(f"sessions", f"{session_id}")
     session_file = os.path.join(f"sessions/{session_id}", "session.json")
+
     try:
         with open(session_file, 'r') as file:
             session = json.load(file)
     except FileNotFoundError:
         print(f"Session {session_id} not found. Are you sure that is correct?")
         return None
+
+    culab = session[session_id]["Metadata"]["CourseLab"].split('/')
+    coursename = culab[0]
+    labname = culab[1]
+    course_dir = f"courses/{coursename}"
+    lab_to_run = f"{course_dir}/labs/{labname}.json"
+
+    with open(lab_to_run, 'r') as file:
+        lab = json.load(file)
+
+    instructions = lab["TestLab"]["Instructions"]
+    file.close()
 
     networks = session[session_id]["Networkinfo"]
     network_names = list(networks.keys())
@@ -415,17 +413,23 @@ def DestorySession(session_id):
 
     return None
 
-def startLab():
-    with open(LAB_TO_RUN, 'r') as file:
+def startLab(labnames):
+    culab = labnames.split('/')
+    course = culab[0]
+    labname = culab[1]
+    course_dir = f"courses/{course}"
+    lab_to_run = f"{course_dir}/labs/{labname}.json"
+
+    with open(lab_to_run, 'r') as file:
         lab = json.load(file)
 
     machines = lab["TestLab"]["Machines"]
     networks = lab["TestLab"]["Networks"]
     instructions = lab["TestLab"]["Instructions"]
 
-    session_id, vm_vnc_ports = CreateSession(machines)
+    session_id, vm_vnc_ports = CreateSession(machines, course, labname)
     guac_data = ConfigureGuac(vm_vnc_ports, session_id)
-    CreateVM(machines, networks, vm_vnc_ports, session_id)
+    CreateVM(machines, networks, vm_vnc_ports, session_id, course_dir)
     GenerateLab(GUAC_FULL_URL, guac_data, session_id, instructions, 0)
 
     file.close()
@@ -434,7 +438,7 @@ def startLab():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="CyberLab Demo Program")
-    parser.add_argument("--newsession", action="store_true", help="Starts a new session")
+    parser.add_argument("--newsession", action="store", help="Starts a new session")
     parser.add_argument("--destorysession", action="store", help="--destorysession [session-id] will stop and delete the VMs, Guacamole connections/users and files for the session")
     parser.add_argument("--pausesession", action="store", help="--pausesession [session-id] will stop VMs and revoke guacamole permissions until session is resumed")
     parser.add_argument("--resumesession", action="store", help="--resumesession [session-id] will resume VMs and add guacamole permissions to the session user")
@@ -443,7 +447,7 @@ if __name__ == "__main__":
     if args.newsession:
         print("Building your session. Please wait")
         print("Errors regarding iso file permission from QEMU/Libvirt can be ignored")
-        session_id = startLab()
+        session_id = startLab(args.newsession)
         print("")
         print(f"Session {session_id} is now ready. You can access VMs directly by opening ./sessions/{session_id}/lab_page.html")
         print("")
