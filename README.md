@@ -40,6 +40,8 @@ As of now the testcourse is recomended to use instead of starting from scrach. D
 
 TestCourse Download: https://drive.google.com/file/d/1jIKv6ErvM6-PKTilCNFpg7h0KEF6dIJe/view?usp=sharing
 
+**NOTE:** Due to the large file size this zip only gets updated every once and awhile and changes to the lab system does change. Please refer to the References directory and use the example lab for the latest changes. For example, "disk" for disk type has been changed to windisk for Windows and lindisk for Linux for compatability reasons. 
+
 ## Running
 ### Information
 Right now, There is a lab hardcoded in cyberlab_concept.py. You can change it but if you just want to test this will work. Labs are part of courses. courses contain vm_images directory (virtual hard drives and isos used for your labs) and a labs directory. In the courses/testcourse/labs directory there is a file called testlab.json. This is what is read when building the lab session. You can add/remove networks and VMs as needed and use your own images as long as you place them in the vm_images directory. Detailed documentation on building labs comming soon. 
