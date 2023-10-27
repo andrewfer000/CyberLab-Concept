@@ -59,3 +59,21 @@ Create a new session based on the testlab with `python3 cyberlab_concept.py --ne
 3. Destory your session with `python3 cyberlab_concept.py --destorysession uU47md3QQG`
 
 Access the VMs by opening the HTML file in your session directory
+
+## Screenshots
+
+#### Creating a session from the lab
+![image](https://github.com/andrewfer000/CyberLab-Concept/assets/9620913/7c2b3fc9-ea33-4779-99d5-25c05dc609b4)
+
+#### Directories and Files in the session's folder
+![image](https://github.com/andrewfer000/CyberLab-Concept/assets/9620913/353b2f65-18d6-4871-85f0-4695053064ce)
+
+#### Lab Interface
+![image](https://github.com/andrewfer000/CyberLab-Concept/assets/9620913/82f633e6-a909-47e3-86cd-848fdae7725a)
+
+#### Session File
+![image](https://github.com/andrewfer000/CyberLab-Concept/assets/9620913/f8dbbae6-a7f4-44b6-985a-69c102865798)
+
+#### Destory the session
+![image](https://github.com/andrewfer000/CyberLab-Concept/assets/9620913/2dec8b5f-995c-474a-b507-ddf138914a00)
+
