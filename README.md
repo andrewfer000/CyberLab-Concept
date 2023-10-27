@@ -50,7 +50,7 @@ As long as testcourse and it's files (testcourse/vm_images/myvm.qcow2, testcours
 
 ### Creating your first session
 Learn the options with `python3 cyberlab_concept.py --help`
-Create a new session based on the testlab with `python3 cyberlab_concept.py --newsession`
+Create a new session based on the testlab with `python3 cyberlab_concept.py --newsession testcourse/testlab`
 *Record The session ID for use with other commands! For example, uU47md3QQG will be used to represent sessions in upcomming commands. Be sure to use YOUR session id*
 
 
