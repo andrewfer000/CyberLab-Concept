@@ -11,21 +11,21 @@
                 "OS": "Linux",
                 "CPUCores": "2",
                 "Memory": "2048",
-                "Network": [["52:54:00:00:00:02", "virtio", "LabNetwork1"]]
+                "Network": [["virtio", "LabNetwork1"]]
             },
             "Machine2": {
-                "Disks": [{"cdrom": "test.iso"}, {"windisk": "winvm.qcow2"}],
+                "Disks": [{"windisk": "winvm.qcow2"}],
                 "OS": "Windows",
                 "CPUCores": "2",
                 "Memory": "4096",
-                "Network": [["52:54:00:00:00:03", "e1000e", "LabNetwork1"]]
+                "Network": [["e1000e", "LabNetwork1"]]
             },
             "Machine3": {
                 "Disks": [{"cdrom": "test.iso"}, {"lindisk": "myvm.qcow2"}],
                 "OS": "Linux",
                 "CPUCores": "2",
                 "Memory": "2048",
-                "Network": [["52:54:00:00:00:04", "virtio", "LabNetwork1"], ["52:54:00:00:00:05", "virtio", "LabNetwork2"]]
+                "Network": [["virtio", "LabNetwork1"], ["virtio", "LabNetwork2"]]
             }
         },
         "Networks": {
