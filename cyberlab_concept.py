@@ -70,6 +70,7 @@ def CreateSession(machines, course, lab):
 # This Function creates tcomponethe VM envirtonment for the lab.
 def CreateVM(machines, networks, vm_vnc_ports, session_id, course_dir):
     machineips = []
+    machinemacs = []
     for network_name, network_info in networks.items():
         dhcp_leases = ""
         random_number = random.randint(1000, 9999)
@@ -85,15 +86,17 @@ def CreateVM(machines, networks, vm_vnc_ports, session_id, course_dir):
 
             for machine_name, details in machines.items():
                 for network in details.get("Network", []):
-                    vm_mac = network[0]
-                    nic_model = network[1]
-                    vm_network_name = network[2]
+                    vm_mac = generate_random_mac()
+                    nic_model = network[0]
+                    vm_network_name = network[1]
                     if net_machine_name == machine_name and network_name == vm_network_name:
                         dhcp_lease_string = f"""
                         <host mac='{ vm_mac }' name='{ f"{vm_network_name}_{session_id}" }' ip='{ full_ip }'/>"""
                         dhcp_leases = dhcp_leases + dhcp_lease_string
                         machineip = {machine_name: full_ip}
+                        machinemac = {machine_name: vm_mac}
                         machineips.append(machineip)
+                        machinemacs.append(machinemac)
                 else:
                     pass
 
@@ -217,10 +220,18 @@ def CreateVM(machines, networks, vm_vnc_ports, session_id, course_dir):
 
         network_conf = ""
         i = 3
+        netcount = 0
+
+        machine_data_macs = []
+        for machinemac in machinemacs:
+            for name, mac in machinemac.items():
+                if name == machine_name:
+                    machine_data_macs.append(mac)
+
         for network in details.get("Network", []):
-            vm_mac = network[0]
-            nic_model = network[1]
-            network_name = network[2]
+            vm_mac = machine_data_macs[netcount]
+            nic_model = network[0]
+            network_name = network[1]
             network_string = f"""<interface type='network'>
                     <mac address='{vm_mac}'/>
                     <source network='{network_name}_{session_id}'/>
@@ -230,6 +241,7 @@ def CreateVM(machines, networks, vm_vnc_ports, session_id, course_dir):
                 """
             network_conf = network_conf + network_string
             i = i+2
+            netcount = netcount + 1
 
         machine_data_ips = []
         for machineip in machineips:
@@ -249,7 +261,8 @@ def CreateVM(machines, networks, vm_vnc_ports, session_id, course_dir):
             "Networks": details.get("Network", []),
             "Disks": VM_Disks,
             "VNC_Port": vnc_port,
-            "machine_data_ips": machine_data_ips
+            "machine_data_ips": machine_data_ips,
+            "machine_data_macs": machine_data_macs
             }
 
         WriteSessionData("machine", machine_data, session_id)

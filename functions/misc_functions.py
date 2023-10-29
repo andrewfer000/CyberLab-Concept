@@ -29,7 +29,8 @@ def WriteSessionData(componet, indata, session_id):
             'CPUCores': indata.get("CPUCores"),
             'Memory': indata.get("Memory"),
             'VNC_Port': indata.get("VNC_Port"),
-            'machine_data_ips': indata.get("machine_data_ips")
+            'machine_data_ips': indata.get("machine_data_ips"),
+            'machine_data_macs': indata.get("machine_data_macs")
         }
 
     elif componet == "network":
