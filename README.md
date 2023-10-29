@@ -2,7 +2,7 @@
 Proof of concept command line version of CyberLab
 
 ## What is it
-CyberLab automates the management of Apache Guacamole and Libvirt QEMU Virtual Machones & Networks for use in temporary lab environments. Labs are defined in JSON files in their respective courses. Lab environments are very customisable. When you run a lab it creates a new "session". A session is made of a JSON file which tracks what resources (VMs, Networks, Guacamole User/Connections) is owned by that session. Sessions can be paused, resumed, and destoryed. A Lab interface HTML file is provided in each session's directory in ./session/session_id.   
+CyberLab automates the management of Apache Guacamole and Libvirt QEMU Virtual Machines & Networks for use in temporary lab environments. Labs are defined in JSON files in their respective courses. Lab environments are very customisable. When you run a lab it creates a new "session". A session is made of a JSON file which tracks what resources (VMs, Networks, Guacamole User/Connections) is owned by that session. Sessions can be paused, resumed, and destoryed. A Lab interface HTML file is provided in each session's directory in ./session/session_id.   
 
 ### What is complete
 1. Automatic Guacamole Management
