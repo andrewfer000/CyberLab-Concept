@@ -89,14 +89,15 @@ def CreateVM(machines, networks, vm_vnc_ports, session_id, course_dir):
                     vm_mac = generate_random_mac()
                     nic_model = network[0]
                     vm_network_name = network[1]
+                    if net_machine_name == machine_name:
+                        machinemac = {machine_name: vm_mac}
+                        machinemacs.append(machinemac)
                     if net_machine_name == machine_name and network_name == vm_network_name:
                         dhcp_lease_string = f"""
                         <host mac='{ vm_mac }' name='{ f"{vm_network_name}_{session_id}" }' ip='{ full_ip }'/>"""
                         dhcp_leases = dhcp_leases + dhcp_lease_string
                         machineip = {machine_name: full_ip}
-                        machinemac = {machine_name: vm_mac}
                         machineips.append(machineip)
-                        machinemacs.append(machinemac)
                 else:
                     pass
 
@@ -109,22 +110,26 @@ def CreateVM(machines, networks, vm_vnc_ports, session_id, course_dir):
             <mac address='{mac_addr}'/>
             <ip address='{ip_addr}' netmask='{sub_mask}'>
             """
-        else:
+        elif network_info.get("Type") == "internet":
             bridge_conf = f"""
             <forward mode="nat"/>
             <bridge name='{br_name}' stp='on' delay='0'/>
             <mac address='{mac_addr}'/>
             <ip address='{ip_addr}' netmask='{sub_mask}'>
             """
+        else:
+            print("WARNING: Network not specified, Please check lab config. Destorying session")
+            DestorySession(session_id)
+            return None
+
+
 
         network_name = f"{network_name}_{session_id}"
         dhcp_start = replace_ip_pattern(base_ip, network_info.get("DHCPv4StartRange"))
         dhcp_end = replace_ip_pattern(base_ip, network_info.get("DHCPv4EndRange"))
 
         net_xml = generate_net_config(network_name, dhcp_start, dhcp_end, dhcp_leases, bridge_conf)
-        #print(net_xml)
         create_internal_network(net_xml)
-
 
         network_data = {
             "Network_Name": network_name,
@@ -442,9 +447,8 @@ def startLab(labnames):
 
     session_id, vm_vnc_ports = CreateSession(machines, course, labname)
     guac_data = ConfigureGuac(vm_vnc_ports, session_id)
-    CreateVM(machines, networks, vm_vnc_ports, session_id, course_dir)
     GenerateLab(GUAC_FULL_URL, guac_data, session_id, instructions, 0)
-
+    CreateVM(machines, networks, vm_vnc_ports, session_id, course_dir)
     file.close()
 
     return session_id
@@ -460,6 +464,7 @@ if __name__ == "__main__":
     if args.newsession:
         print("Building your session. Please wait")
         print("Errors regarding iso file permission from QEMU/Libvirt can be ignored")
+        print("")
         session_id = startLab(args.newsession)
         print("")
         print(f"Session {session_id} is now ready. You can access VMs directly by opening ./sessions/{session_id}/lab_page.html")
