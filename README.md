@@ -44,9 +44,7 @@ TestCourse Download: https://drive.google.com/file/d/1jIKv6ErvM6-PKTilCNFpg7h0KE
 
 ## Running
 ### Information
-Right now, There is a lab hardcoded in cyberlab_concept.py. You can change it but if you just want to test this will work. Labs are part of courses. courses contain vm_images directory (virtual hard drives and isos used for your labs) and a labs directory. In the courses/testcourse/labs directory there is a file called testlab.json. This is what is read when building the lab session. You can add/remove networks and VMs as needed and use your own images as long as you place them in the vm_images directory. Detailed documentation on building labs comming soon. 
-
-As long as testcourse and it's files (testcourse/vm_images/myvm.qcow2, testcourse/vm_images/test.iso, testcourse/labs/testlab.json) are in-tact you can run the lab.
+Labs are part of courses. Courses contain vm_images directory (virtual hard drives and isos used for your labs) and a labs directory. If you download the testcourse and unzip it into the courses directory and run the new session command the lab should run without issues. As long as testcourse and it's files (testcourse/vm_images/myvm.qcow2, testcourse/vm_images/test.iso, testcourse/labs/testlab.json) are in-tact you can run the lab.
 
 ### Creating your first session
 Learn the options with `python3 cyberlab_concept.py --help`
@@ -71,8 +69,8 @@ Access the VMs by opening the HTML file in your session directory
 #### Lab Interface
 ![image](https://github.com/andrewfer000/CyberLab-Concept/assets/9620913/82f633e6-a909-47e3-86cd-848fdae7725a)
 
-#### Session File
-![image](https://github.com/andrewfer000/CyberLab-Concept/assets/9620913/f8dbbae6-a7f4-44b6-985a-69c102865798)
+#### Session File Snipit
+![image](https://github.com/andrewfer000/CyberLab-Concept/assets/9620913/a2afb779-db58-4262-a2b0-bdf171891255)
 
 #### Destory the session
 ![image](https://github.com/andrewfer000/CyberLab-Concept/assets/9620913/2dec8b5f-995c-474a-b507-ddf138914a00)
