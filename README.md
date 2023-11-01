@@ -6,6 +6,41 @@ CyberLab automates the management of Apache Guacamole and Libvirt QEMU Virtual M
 
 This version of the software is for testing & development purposes specifically in regards to the backend (The part the manages QEMU, Guacamole, and the Sessions for a given back-end host). THIS IS NOT A COMPLETE SOLUTION FOR USE IN SCHOOLS OR TRAINING LABS! One day, this part will be known as the "Daemon"/"Backend" in a real deployment. 
 
+## The Finished Product 
+This is not available yet since I need to build a whole frontend and backend API service. Do not expect this for some time. The main goal is to get this version up and running. 
+
+## Benifits
+**NOTE:** This benifits section applies to the FINISHED PRODUCT which does not exist yet
+
+### For Trade Schools and Universities
+1. Free and Open Source Software. Use and modify to your hearts content.
+2. Deploy on your own systems. Keep your data safe.
+3. Instructors and Administrators have full control.
+4. Low cost to operate. All involved software is Free and Open Source. (Linux, (Apache/Nginx), Python, MySQL, Apache Guacamole, Libvirt/QEMU/KVM)
+5. Web based access. No special software or user configurations required. Works with Firefox and Chromium based browsers. (Will likley work with any browser that can support HTML5, iframes, and HTMX)
+6. LMS intergration (Far goal).
+7. Scales to your needs. Deploy the backend (QEMU/KVM, MySQL, Apache Guacamole) on as many servers as you need. 
+8. Secure and isolated. VMs and Networks are randomiszed and destoryed if inactive or lab is complete
+9. Lab Session tracking is saved allowing for auditing. 
+10. Paid Support, SLAs, and Whitelabeling Services will become available
+
+### For Instructors and Lab Desginers
+1. Design and Build Labs using your own VM images and use JSON code to design your lab. It's YOUR VMs, YOUR curriculum, YOUR labs. 
+2. Reproducable Lab Environments. Same lab and results with every run.
+3. Add Questions and "Checkers" to your labs for automatic grading. 
+4. No setup for students. Once your course and labs are deployed. Enrolled students just click and run.
+5. Courses based on popular curriculums will be made available for purchace in the future. Buy, Deploy, Run.
+6. See student's progress. 
+
+### For Students
+1. Login, Click lab, and Learn! No setup required.
+2. No powerful system required. Complete your labs on a chromebook!
+3. Complete your labs from anywhere, any time! No need to spend time in a physical lab! 
+4. No longer need to buy costly access to online lab simulators to complete your work. (Unless your university charges)
+5. Mess up? Just reset and try again. Exam prep? Re-run labs to drill in those concepts! 
+
+## Completion
+
 ### What is complete
 1. Automatic Guacamole Management
 2. Automatic QEMU and Network Management
@@ -15,7 +50,6 @@ This version of the software is for testing & development purposes specifically 
 6. Session resume
 7. Session destory
 8. Generate Lab Interface with instrustions and questions (Features still being added)
-
 
 ### What is incomplete
 1. Lab JSON checking and validaton (Be careful when writing your own)
