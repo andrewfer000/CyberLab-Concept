@@ -1,5 +1,9 @@
 # CyberLab-Concept
-Proof of concept command line version of CyberLab
+Proof of concept command line version of CyberLab Simulator
+
+
+# Depracation Notice:
+**This version will no longer be maintained. CyberLab Simuator will now be 100% flask based If you want a simple, single-user/development version of CyberLab Simulator please refer to the Daemon Repositiory https://github.com/andrewfer000/CyberLab-Daemon**
 
 ## What is it
 CyberLab automates the management of Apache Guacamole and Libvirt QEMU Virtual Machines & Networks for use in temporary lab environments. Labs are defined in JSON files in their respective courses. Lab environments are very customisable. When you run a lab it creates a new "session". A session is made of a JSON file which tracks what resources (VMs, Networks, Guacamole User/Connections) is owned by that session. Sessions can be paused, resumed, and destoryed. A Lab interface HTML file is provided in each session's directory in ./session/session_id. 
